@@ -4,9 +4,26 @@
     <div class="container mt-4">
         <h2 class="mb-4">Profile</h2>
 
-        <form method="POST" action="{{ route('profile.update') }}">
+        <!-- enctype is required for file upload -->
+        <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
             @csrf
             @method('patch')
+
+            <!-- Profile Picture -->
+            <div class="mb-3">
+                <label for="profile_picture" class="form-label">Profile Picture</label>
+                <input id="profile_picture" name="profile_picture" type="file" class="form-control">
+
+                <div class="mt-2">
+                    <img src="{{ $user->profile_picture 
+                                    ? asset('storage/' . $user->profile_picture) 
+                                    : asset('images/default-avatar.png') }}" 
+                        alt="Profile Picture" 
+                        class="rounded-circle border"
+                        width="100" height="100">
+                </div>
+            </div>
+
 
             <!-- Name -->
             <div class="mb-3">

@@ -14,6 +14,7 @@ class LeaveController extends Controller
         return view('leave');
     }
 
+
     // Store leave request
     public function store(Request $request)
     {
@@ -31,6 +32,14 @@ class LeaveController extends Controller
             'status' => 'Pending',
         ]);
 
+        
+
         return redirect()->route('leave.create')->with('success', 'Leave request sent!');
+    }
+
+        public function status()
+    {
+        $leaves = \App\Models\Leave::where('user_id', auth()->id())->latest()->get();
+        return view('status', compact('leaves'));
     }
 }

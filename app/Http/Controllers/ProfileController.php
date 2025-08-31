@@ -25,7 +25,7 @@ class ProfileController extends Controller
      * Update the user's profile information.
      */
     public function update(Request $request): RedirectResponse
-    {
+{
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255'],
@@ -33,13 +33,21 @@ class ProfileController extends Controller
             'phone' => ['nullable', 'string', 'max:20'],
             'address' => ['nullable', 'string', 'max:255'],
             'class_name' => ['nullable', 'string', 'max:50'],
+            'profile_picture' => ['nullable', 'image', 'max:2048'], // <─ NEW
         ]);
 
-        $request->user()->update($validated);
+        $user = $request->user();
+        $user->fill($validated);
+
+        if ($request->hasFile('profile_picture')) {
+            $path = $request->file('profile_picture')->store('profile_pictures', 'public');
+            $user->profile_picture = $path;
+        }
+
+        $user->save();
 
         return back()->with('status', 'profile-updated');
     }
-
 
     /**
      * Delete the user's account.

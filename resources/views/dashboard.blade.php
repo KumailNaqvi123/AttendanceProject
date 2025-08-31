@@ -11,8 +11,7 @@
         <a href="{{ route('attendance.index') }}">
             <button>View Attendance</button>
         </a>
-        <a href="{{ route('profile.edit') }}">
-            <button>Profile Management</button>
-        </a>
+        <a href="{{ route('leave.status') }}">
+            <button>View Leave Status</button>
     </div>
 @endsection

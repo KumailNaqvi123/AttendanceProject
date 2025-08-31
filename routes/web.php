@@ -22,6 +22,7 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/leave/create', [App\Http\Controllers\LeaveController::class, 'create'])->name('leave.create');
     Route::post('/leave', [App\Http\Controllers\LeaveController::class, 'store'])->name('leave.store');
+    Route::get('/leave/status', [App\Http\Controllers\LeaveController::class, 'status'])->name('leave.status'); // 👈 add this
 });
 
 // Profile
