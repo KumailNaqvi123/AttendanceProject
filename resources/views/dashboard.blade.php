@@ -1,0 +1,18 @@
+@extends('layouts.app')
+
+@section('content')
+    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <a href="{{ route('attendance.index') }}">
+            <button>Mark Attendance</button>
+        </a>
+        <a href="{{ route('leave.create') }}">
+            <button>Mark Leave</button>
+        </a>
+        <a href="{{ route('attendance.index') }}">
+            <button>View Attendance</button>
+        </a>
+        <a href="{{ route('profile.edit') }}">
+            <button>Profile Management</button>
+        </a>
+    </div>
+@endsection
