@@ -13,4 +13,10 @@ class Leave extends Model
         'reason',
         'status',
     ];
+    
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
+

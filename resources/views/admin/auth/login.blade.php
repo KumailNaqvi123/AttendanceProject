@@ -2,7 +2,7 @@
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <form method="POST" action="{{ route('login') }}">
+    <form method="POST" action="{{ route('admin.login') }}">
         @csrf
 
         <!-- Email Address -->
@@ -42,11 +42,4 @@
             </x-primary-button>
         </div>
     </form>
-
-    <!-- Admin login link -->
-    <div class="mt-4 text-center">
-        <a href="{{ route('admin.login') }}" class="text-sm text-blue-600 hover:underline">
-            If you are an admin, click here
-        </a>
-    </div>
 </x-guest-layout>
