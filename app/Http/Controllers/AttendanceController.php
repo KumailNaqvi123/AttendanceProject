@@ -24,8 +24,9 @@ class AttendanceController extends Controller
         }
 
         Attendance::create([
-            'user_id' => Auth::id(),
-            'date' => $today,
+        'user_id' => auth()->id(),
+        'date' => now()->toDateString(),
+        'status' => 'present',
         ]);
 
         return redirect()->back()->with('success', 'Attendance marked successfully!');
