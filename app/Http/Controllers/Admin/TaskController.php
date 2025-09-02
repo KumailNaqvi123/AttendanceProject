@@ -40,33 +40,57 @@ class TaskController extends Controller
             'content' => 'required|string',
         ]);
 
-        Task::create([
+        $task = Task::create([
             'admin_id' => Auth::id(),
             'user_id'  => $request->user_id,
             'content'  => $request->content,
             'status'   => 'pending',
         ]);
 
+        // 🔔 Send WhatsApp notification to assigned user
+        $user = User::find($request->user_id);
+
+        if ($user && $user->phone) {
+            $adminName = Auth::user()->name;
+
+            $message = "New Task Assigned by {$adminName} Please check your dashboard to respond.";
+
+            \App\Helpers\WhatsappHelper::send($user->phone, $message);
+        }
+
         return redirect()->route('admin.tasks.index')->with('success', 'Task created successfully.');
     }
 
     // Admin: review a task response
-    public function review(Request $request, TaskResponse $response)
-    {
-        $request->validate([
-            'status' => 'required|in:approved,rejected',
-            'feedback' => 'nullable|string'
-        ]);
+// Admin: review a task response
+public function review(Request $request, TaskResponse $response)
+{
+    $request->validate([
+        'status' => 'required|in:approved,rejected',
+        'feedback' => 'nullable|string'
+    ]);
 
-        // Update response status
-        $response->update([
-            'status' => $request->status,
-            'feedback' => $request->feedback ?? null
-        ]);
+    // Update response status
+    $response->update([
+        'status'   => $request->status,
+        'feedback' => $request->feedback ?? null
+    ]);
 
-        // Update parent task status as well
-        $response->task->update(['status' => $request->status]);
+    // Update parent task status as well
+    $response->task->update(['status' => $request->status]);
 
-        return redirect()->back()->with('success', 'Task reviewed successfully!');
+    // 🔔 Send WhatsApp notification to the user
+    $user = $response->task->user;
+    if ($user && $user->phone) {
+        $statusText = $request->status === 'approved' ? 'accepted' : 'rejected';
+        $date = $response->task->created_at->format('Y-m-d');
+
+        $message = "Your task for {$date} has been {$statusText}.";
+
+        \App\Helpers\WhatsappHelper::send($user->phone, $message);
     }
+
+    return redirect()->back()->with('success', 'Task reviewed successfully!');
+}
+
 }
