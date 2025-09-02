@@ -17,6 +17,7 @@ class AttendanceController extends Controller
     public function mark()
     {
         $today = now()->toDateString();
+        
         $alreadyMarked = Attendance::where('user_id', Auth::id())->where('date', $today)->exists();
 
         if ($alreadyMarked) {
@@ -28,6 +29,15 @@ class AttendanceController extends Controller
         'date' => now()->toDateString(),
         'status' => 'present',
         ]);
+
+        // Send WhatsApp notification
+        $user = auth()->user();
+
+        \Log::info('Sending WhatsApp to: ' . $user->phone);
+
+
+        $message = "Hi {$user->name}, your attendance for {$today} has been marked as PRESENT.";
+        \App\Helpers\WhatsappHelper::send($user->phone, $message);
 
         return redirect()->back()->with('success', 'Attendance marked successfully!');
     }

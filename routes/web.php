@@ -3,6 +3,7 @@
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Http;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use App\Http\Controllers\Admin\Auth\AdminLoginController;
 use App\Http\Controllers\User\TaskController as UserTaskController;
@@ -79,5 +80,25 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tasks/{task}', [AdminTaskController::class, 'show'])->name('tasks.show');
     Route::post('/tasks/{response}/review', [AdminTaskController::class, 'review'])->name('tasks.review');
 });
+
+
+// Testing Twilio Integration
+
+// Route::get('/test-whatsapp', function () {
+//     $sid = env('TWILIO_SID');
+//     $token = env('TWILIO_AUTH_TOKEN');
+//     $from = env('TWILIO_WHATSAPP_FROM');
+//     $to = 'whatsapp:+923165279519'; // your phone number joined to sandbox
+
+//     $response = Http::withBasicAuth($sid, $token)
+//     ->asForm() // important!
+//     ->post("https://api.twilio.com/2010-04-01/Accounts/$sid/Messages.json", [
+//         'From' => $from,
+//         'To' => $to,
+//         'Body' => 'Hello! This is a test WhatsApp message from Laravel.',
+//     ]);
+
+//     dd($response->body());
+// });
 
 require __DIR__.'/auth.php';
