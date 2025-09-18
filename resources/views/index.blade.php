@@ -1,4 +1,4 @@
-<!-- filepath: resources/views/attendance/index.blade.php -->
+{{-- <!-- filepath: resources/views/attendance/index.blade.php -->
 @extends('layouts.app')
 
 @section('content')
@@ -19,4 +19,4 @@
             <li>{{ $attendance->date }}</li>
         @endforeach
     </ul>
-@endsection
+@endsection --}}

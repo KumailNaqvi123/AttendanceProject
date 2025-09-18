@@ -44,9 +44,9 @@
     </form>
 
     <!-- Admin login link -->
-    <div class="mt-4 text-center">
+    {{-- <div class="mt-4 text-center">
         <a href="{{ route('admin.login') }}" class="text-sm text-blue-600 hover:underline">
             If you are an admin, click here
         </a>
-    </div>
+    </div> --}}
 </x-guest-layout>

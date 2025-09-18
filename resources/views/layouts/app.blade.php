@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -28,7 +30,7 @@
             @endisset
 
             <!-- Page Content -->
-            <main>
+            <main class="mt-20">
                 @yield('content')
             </main>
         </div>

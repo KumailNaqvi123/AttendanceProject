@@ -1,47 +1,85 @@
-@extends('layouts.admin') <!-- your admin layout -->
+@extends('layouts.app')
 
 @section('content')
-<h2>Leave Requests</h2>
+<div class="max-w-5xl mx-auto py-10 px-4">
 
-@if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-@endif
+    {{-- Header --}}
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold"></h2>
+    </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Student</th>
-            <th>From</th>
-            <th>To</th>
-            <th>Reason</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($leaves as $leave)
-        <tr>
-            <td>{{ $leave->user->name }}</td>
-            <td>{{ $leave->from_date }}</td>
-            <td>{{ $leave->to_date }}</td>
-            <td>{{ $leave->reason }}</td>
-            <td>{{ $leave->status }}</td>
-            <td>
-                @if($leave->status === 'Pending')
-                <form method="POST" action="{{ route('admin.leaves.approve', $leave) }}" style="display:inline;">
-                    @csrf
-                    <button class="btn btn-success btn-sm">Approve</button>
-                </form>
-                <form method="POST" action="{{ route('admin.leaves.reject', $leave) }}" style="display:inline;">
-                    @csrf
-                    <button class="btn btn-danger btn-sm">Reject</button>
-                </form>
-                @else
-                N/A
-                @endif
-            </td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
+    {{-- Leave Requests Table --}}
+    <div class="bg-white rounded-lg shadow overflow-hidden w-full">
+        <table class="w-full border-collapse table-auto">
+            <thead>
+                <tr style="background-color:#A9C7F9;" class="text-gray-800">
+                    <th class="px-4 py-3 font-medium text-left">SR#</th>
+                    <th class="px-4 py-3 font-medium text-left">Reason</th>
+                    <th class="px-4 py-3 font-medium text-left">From</th>
+                    <th class="px-4 py-3 font-medium text-left">To</th>
+                    <th class="px-4 py-3 font-medium text-left">Status</th>
+                    <th class="px-4 py-3 font-medium text-left">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($leaves as $index => $leave)
+                    @php
+                        $rowColor = $index % 2 === 0 ? '#E8F0FE' : '#FFFFFF';
+                        $from = \Carbon\Carbon::parse($leave->from_date)->format('d M Y');
+                        $to = \Carbon\Carbon::parse($leave->to_date)->format('d M Y');
+                    @endphp
+                    <tr style="background-color: {{ $rowColor }};">
+                        <td class="px-4 py-4 text-gray-800 font-medium">{{ $index + 1 }}</td>
+                        <td class="px-4 py-4 text-gray-800">{{ $leave->reason ?? '—' }}</td>
+                        <td class="px-4 py-4 text-gray-800">{{ $from }}</td>
+                        <td class="px-4 py-4 text-gray-800">{{ $to }}</td>
+                        <td class="px-4 py-4 text-gray-800">
+                            @switch($leave->status)
+                                @case('pending')
+                                    <span class="px-2 py-2 rounded text-yellow-800 bg-yellow-200 font-semibold">Pending</span>
+                                    @break
+                                @case('approved')
+                                    <span class="px-2 py-2 rounded text-green-800 bg-green-200 font-semibold">Approved</span>
+                                    @break
+                                @case('rejected')
+                                    <span class="px-2 py-2 rounded text-red-800 bg-red-200 font-semibold">Rejected</span>
+                                    @break
+                                @default
+                                    <span class="px-2 py-2 rounded text-gray-800 bg-gray-200 font-semibold">{{ ucfirst($leave->status) }}</span>
+                            @endswitch
+                        </td>
+                        <td class="px-4 py-3">
+                            @if(strtolower($leave->status) === 'pending')
+                                <form method="POST" action="{{ route('admin.leaves.approve', $leave) }}" style="display:inline;">
+                                    @csrf
+                                    <button type="submit"
+                                        style="background-color:#16a34a !important; color:white !important;"
+                                        class="px-3 py-1 font-medium rounded-md text-sm transition">
+                                    Approve
+                                </button>
+
+                                </form>
+                                <form method="POST" action="{{ route('admin.leaves.reject', $leave) }}" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm font-medium transition">
+                                        Reject
+                                    </button>
+                                </form>
+                            @else
+                                <span class="text-gray-400">N/A</span>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="px-4 py-3 text-center text-gray-500">
+                            You haven’t gotten any leave requests yet.
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+</div>
 @endsection

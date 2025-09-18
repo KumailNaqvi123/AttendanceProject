@@ -8,6 +8,9 @@ use Spatie\Permission\Middleware\RoleMiddleware;
 use App\Http\Controllers\Admin\Auth\AdminLoginController;
 use App\Http\Controllers\User\TaskController as UserTaskController;
 use App\Http\Controllers\Admin\TaskController as AdminTaskController;
+use Illuminate\Support\Facades\Storage;
+
+
 
 
 app('router')->aliasMiddleware('role', RoleMiddleware::class);
@@ -19,6 +22,9 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
+
+// //route for downloading files
+// Route::get('/tasks/{task}/file', [App\Http\Controllers\Admin\TaskController::class, 'downloadFile']) ->name('admin.tasks.download');
 
 // ----------------- Attendance -----------------
 Route::middleware(['auth'])->group(function () {
@@ -44,6 +50,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tasks', [UserTaskController::class, 'index'])->name('tasks.index');
     Route::get('/tasks/{task}', [UserTaskController::class, 'show'])->name('tasks.show');
     Route::post('/tasks/{task}/submit', [UserTaskController::class, 'submit'])->name('tasks.submit');
+
+    // User downloads their task response file
+    Route::get('/tasks/responses/{response}/download', [UserTaskController::class, 'downloadResponse'])
+        ->name('tasks.downloadResponse');
+
+    // User downloads admin-attached task file
+    Route::get('/tasks/{task}/download', [UserTaskController::class, 'downloadTaskFile'])
+        ->name('tasks.downloadFile');
 });
 
 
@@ -51,12 +65,13 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-    // ----------------- Admin Login -----------------
-    Route::prefix('admin')->name('admin.')->group(function () {
-        Route::get('/login', [AdminLoginController::class, 'showLoginForm'])->name('login');
-        Route::post('/login', [AdminLoginController::class, 'login']);
-        Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
-    });
+
+    // // ----------------- Admin Login -----------------
+    // Route::prefix('admin')->name('admin.')->group(function () {
+    //     Route::get('/login', [AdminLoginController::class, 'showLoginForm'])->name('login');
+    //     Route::post('/login', [AdminLoginController::class, 'login']);
+    //     Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
+    // });
 
     // ----------------- Protected Admin Routes -----------------
     Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
@@ -79,6 +94,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tasks', [AdminTaskController::class, 'store'])->name('tasks.store');
     Route::get('/tasks/{task}', [AdminTaskController::class, 'show'])->name('tasks.show');
     Route::post('/tasks/{response}/review', [AdminTaskController::class, 'review'])->name('tasks.review');
+
+    // ✅ Admin routes for downloads
+Route::get('/tasks/{task}/download', [AdminTaskController::class, 'downloadTaskFile'])
+        ->name('tasks.downloadFile');
+
+    Route::get('/tasks/responses/{response}/download', [AdminTaskController::class, 'downloadResponse'])
+        ->name('tasks.downloadResponse');
 });
 
 
@@ -99,6 +121,15 @@ Route::middleware(['auth'])->group(function () {
 //     ]);
 
 //     dd($response->body());
+// });
+
+// Testing Google Drive Integration
+// Route::get('/test-upload', function () {
+//     $content = "Hello Google Drive!";
+//     $path = 'tasks/test.txt'; // will be inside the folder you set in GOOGLE_DRIVE_FOLDER_ID
+//     $stored = Storage::disk('google')->put($path, $content);
+
+//     return $stored ? "Uploaded ✅" : "Failed ❌";
 // });
 
 require __DIR__.'/auth.php';

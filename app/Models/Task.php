@@ -9,7 +9,14 @@ class Task extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['admin_id', 'user_id', 'content', 'status'];
+    protected $fillable = [
+        'admin_id',
+        'user_id',
+        'content',
+        'status',
+        'file_id',     // ✅ allow saving file_id
+        'file_name',   // ✅ allow saving file_name
+    ];
 
     // The admin who assigned the task
     public function admin()

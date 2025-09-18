@@ -1,122 +1,130 @@
-{{-- @extends('layouts.admin')
+@extends('layouts.app')
 
 @section('content')
-<h2>Attendance Reports</h2>
+@php
+    $grouped = $attendances->groupBy('user.name');
+@endphp
 
-<form method="GET" class="mb-4 flex space-x-2">
-    <select name="student_id" class="border rounded px-2 py-1">
-        <option value="">All Students</option>
-        @foreach($students as $student)
-        <option value="{{ $student->id }}" {{ request('student_id') == $student->id ? 'selected' : '' }}>
-            {{ $student->name }}
-        </option>
-        @endforeach
-    </select>
+<div class="max-w-5xl mx-auto py-10 px-4">
 
-    <input type="date" name="from_date" value="{{ request('from_date') }}" class="border rounded px-2 py-1">
-    <input type="date" name="to_date" value="{{ request('to_date') }}" class="border rounded px-2 py-1">
+    {{-- Header --}}
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold"></h2>
+    </div>
 
-    <button type="submit" class="bg-indigo-600 text-white px-4 py-1 rounded">Filter</button>
+    {{-- Filter Form --}}
+<form method="GET" class="mb-6">
+
+    <div class="flex flex-wrap gap-3">
+
+        <!-- Student Dropdown -->
+        <div class="flex flex-col">
+            <label class="text-gray-700 text-sm mb-1">Student</label>
+            <select name="student_id" class="border rounded px-3 py-1 h-9 w-56">
+                <option value="">All Students</option>
+                @foreach($grouped as $student => $records)
+                    <option value="{{ $records->first()->user->id }}" {{ request('student_id') == $records->first()->user->id ? 'selected' : '' }}>
+                        {{ $student }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <!-- From Date -->
+        <div class="flex flex-col">
+            <label class="text-gray-700 text-sm mb-1">From</label>
+            <input type="date" name="from_date" value="{{ request('from_date') }}" class="border rounded px-3 py-1 h-9">
+        </div>
+
+        <!-- To Date -->
+        <div class="flex flex-col">
+            <label class="text-gray-700 text-sm mb-1">To</label>
+            <input type="date" name="to_date" value="{{ request('to_date') }}" class="border rounded px-3 py-1 h-9">
+        </div>
+
+    </div>
+
+    <!-- Filter Button on its own row -->
+    <div class="mt-3">
+        <button type="submit" style="background-color: #1177d1; height:36px; padding:0 12px; color:white; border-radius:6px; font-weight:500;">
+            Filter
+        </button>
+    </div>
+
 </form>
 
-<table class="min-w-full border border-gray-200">
-    <thead class="bg-gray-100">
-        <tr>
-            <th class="px-4 py-2 border">Student</th>
-            <th class="px-4 py-2 border">Date</th>
-            <th class="px-4 py-2 border">Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($attendances as $att)
-        <tr>
-            <td class="px-4 py-2 border">{{ $att->user->name }}</td>
-            <td class="px-4 py-2 border">{{ $att->created_at->format('Y-m-d') }}</td>
-            <td class="px-4 py-2 border">{{ ucfirst($att->status) }}</td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
-@endsection --}}
 
-@extends('layouts.admin')
 
-@section('content')
-<h2>Attendance Reports</h2>
 
-<form method="GET" class="mb-4 flex space-x-2">
-    <select name="student_id" class="border rounded px-2 py-1">
-        <option value="">All Students</option>
-        @foreach($students as $student)
-        <option value="{{ $student->id }}" {{ request('student_id') == $student->id ? 'selected' : '' }}>
-            {{ $student->name }}
-        </option>
-        @endforeach
-    </select>
+    {{-- Grade Summary Table --}}
+    <h3 class="mt-6 mb-2 font-semibold">Grade Summary</h3>
+    <div class="bg-white rounded-lg shadow overflow-hidden w-full mb-6">
+        <table class="w-full border-collapse table-auto">
+            <thead>
+                <tr class="bg-blue-100 text-gray-800">
+                    <th class="px-4 py-3 font-medium text-left">Student</th>
+                    <th class="px-4 py-3 font-medium text-left">Total Days</th>
+                    <th class="px-4 py-3 font-medium text-left">Grade</th>
+                </tr>
+            </thead>
+            <tbody>
 
-    <input type="date" name="from_date" value="{{ request('from_date') }}" class="border rounded px-2 py-1">
-    <input type="date" name="to_date" value="{{ request('to_date') }}" class="border rounded px-2 py-1">
 
-    <button type="submit" class="bg-indigo-600 text-white px-4 py-1 rounded">Filter</button>
-</form>
+@forelse($grouped as $records)
+    @php
+        $student = $records->first()->user->name;
+        $count = $records->count();
+        $grade = $count >= 26 ? 'A' :
+                 ($count >= 20 ? 'B' :
+                 ($count >= 15 ? 'C' :
+                 ($count >= 10 ? 'D' : 'F')));
+        $rowColor = $loop->iteration % 2 === 0 ? '#E8F0FE' : '#FFFFFF';
+    @endphp
+    <tr style="background-color: {{ $rowColor }};">
+        <td class="px-4 py-3 text-gray-800">{{ $student }}</td>
+        <td class="px-4 py-3 text-gray-800">{{ $count }}</td>
+        <td class="px-4 py-3 text-gray-800 font-semibold">{{ $grade }}</td>
+    </tr>
+@empty
+    <tr>
+        <td colspan="3" class="px-4 py-3 text-center text-gray-500">No records found.</td>
+    </tr>
+@endforelse
 
-{{-- ✅ Grade Summary Table --}}
-<h3 class="mt-6 mb-2 font-semibold">Grade Summary</h3>
-<table class="min-w-full border border-gray-200 mb-6">
-    <thead class="bg-gray-100">
-        <tr>
-            <th class="px-4 py-2 border">Student</th>
-            <th class="px-4 py-2 border">Total Days</th>
-            <th class="px-4 py-2 border">Grade</th>
-        </tr>
-    </thead>
-    <tbody>
-        @php
-            $grouped = $attendances->groupBy('user.name');
-        @endphp
+            </tbody>
+        </table>
+    </div>
 
-        @foreach($grouped as $student => $records)
-            @php
-                $count = $records->count();
-                if ($count >= 26) {
-                    $grade = 'A';
-                } elseif ($count >= 20) {
-                    $grade = 'B';
-                } elseif ($count >= 15) {
-                    $grade = 'C';
-                } elseif ($count >= 10) {
-                    $grade = 'D';
-                } else {
-                    $grade = 'F';
-                }
-            @endphp
-            <tr>
-                <td class="px-4 py-2 border">{{ $student }}</td>
-                <td class="px-4 py-2 border">{{ $count }}</td>
-                <td class="px-4 py-2 border font-bold">{{ $grade }}</td>
-            </tr>
-        @endforeach
-    </tbody>
-</table>
+    {{-- Detailed Attendance Table --}}
+    <h3 class="mt-6 mb-2 font-semibold">Detailed Attendance</h3>
+    <div class="bg-white rounded-lg shadow overflow-hidden w-full">
+        <table class="w-full border-collapse table-auto">
+            <thead>
+                <tr class="bg-blue-100 text-gray-800">
+                    <th class="px-4 py-3 font-medium text-left">Student</th>
+                    <th class="px-4 py-3 font-medium text-left">Date</th>
+                    <th class="px-4 py-3 font-medium text-left">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+@forelse($attendances as $att)
+    @php
+        $rowColor = $loop->iteration % 2 === 0 ? '#E8F0FE' : '#FFFFFF';
+    @endphp
+    <tr style="background-color: {{ $rowColor }};">
+        <td class="px-4 py-3 text-gray-800">{{ $att->user->name }}</td>
+        <td class="px-4 py-3 text-gray-800">{{ $att->created_at->format('Y-m-d') }}</td>
+        <td class="px-4 py-3 text-gray-800">{{ ucfirst($att->status) }}</td>
+    </tr>
+@empty
+    <tr>
+        <td colspan="3" class="px-4 py-3 text-center text-gray-500">No attendance records found.</td>
+    </tr>
+@endforelse
 
-{{-- ✅ Detailed Attendance Logs --}}
-<h3 class="mt-6 mb-2 font-semibold">Detailed Attendance</h3>
-<table class="min-w-full border border-gray-200">
-    <thead class="bg-gray-100">
-        <tr>
-            <th class="px-4 py-2 border">Student</th>
-            <th class="px-4 py-2 border">Date</th>
-            <th class="px-4 py-2 border">Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($attendances as $att)
-        <tr>
-            <td class="px-4 py-2 border">{{ $att->user->name }}</td>
-            <td class="px-4 py-2 border">{{ $att->created_at->format('Y-m-d') }}</td>
-            <td class="px-4 py-2 border">{{ ucfirst($att->status) }}</td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
+            </tbody>
+        </table>
+    </div>
+
+</div>
 @endsection
